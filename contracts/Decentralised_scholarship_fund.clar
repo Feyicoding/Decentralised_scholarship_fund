@@ -113,3 +113,22 @@
     (err err-not-found)
   )
 )
+;; New Constants and Maps
+(define-constant max-category-length u50)
+(define-map earmarked-funds { category: (string-ascii 50) } { amount: uint })
+(define-map donor-earmarks { donor: principal, category: (string-ascii 50) } { amount: uint })
+
+;; Private Function: Validate Category
+(define-private (validate-category (category (string-ascii 50)))
+  (and (> (len category) u0) (<= (len category) max-category-length))
+)
+
+;; Public Function: Donate with Earmark
+(define-public (donate-earmarked (amount uint) (category (string-ascii 50)))
+  (begin
+    (asserts! (validate-amount amount) err-invalid-amount)
+    (asserts! (validate-category category) (err u109))
+    (try! (ft-transfer? scholarship-token amount tx-sender (var-get owner)))
+    (ok true)
+  )
+)
